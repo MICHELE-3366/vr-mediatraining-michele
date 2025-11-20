@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VR Media Training - Michèle</title>
+    <!-- Bibliothèque A-Frame -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <!--
+      Mode d'emploi rapide :
+      1. Uploadez ce fichier sur Netlify (voir README).
+      2. Ouvrez l'URL depuis le navigateur de votre casque VR.
+      3. Cliquez sur "Enter VR" pour entrer dans la salle.
+      4. Bouton bleu : question suivante.
+      5. Bouton violet : afficher / cacher les notes / storyboard.
+    -->
+    <a-scene>
+      <!-- Caméra principale -->
+      <a-entity id="rig" position="0 1.6 0">
+        <a-camera wasd-controls-enabled="false"></a-camera>
+      </a-entity>
+
+      <!-- Sol -->
+      <a-plane rotation="-90 0 0" width="10" height="10" position="0 0 0" color="#808080"></a-plane>
+
+      <!-- Mur avec la question -->
+      <a-box position="0 2 -5" depth="0.1" height="3" width="6" color="#222"></a-box>
+
+      <!-- Panneau question (texte) -->
+      <a-entity id="questionText"
+                position="0 2 -4.9"
+                text="value: Bienvenue dans la salle d'entraînement média.;
+                      align: center;
+                      wrapCount: 40;
+                      width: 6;
+                      color: #FFFFFF;">
+      </a-entity>
+
+      <!-- Bouton "Question suivante" -->
+      <a-box id="nextButton"
+             position="0 0.8 -3"
+             depth="0.3" height="0.5" width="2"
+             color="#0044AA"
+             class="clickable">
+      </a-box>
+      <a-entity position="0 0.8 -2.99"
+                text="value: Question suivante;
+                      align: center;
+                      width: 4;
+                      color: #FFFFFF;">
+      </a-entity>
+
+      <!-- Panneau storyboard / notes à droite -->
+      <a-box id="notesPanel"
+             position="3 2 -4"
+             depth="0.1" height="3" width="3.5"
+             color="#333"></a-box>
+
+      <a-entity id="notesTitle"
+                position="3 3.3 -3.95"
+                text="value: NOTES / STORYBOARD;
+                      align: center;
+                      width: 4;
+                      color: #FFD700;">
+      </a-entity>
+
+      <a-entity id="notesText"
+                position="3 1.9 -3.95"
+                text="value: ;
+                      align: left;
+                      wrapCount: 26;
+                      width: 3.4;
+                      color: #FFFFFF;">
+      </a-entity>
+
+      <!-- Bouton pour afficher / cacher les notes -->
+      <a-box id="toggleNotesButton"
+             position="3 0.8 -3"
+             depth="0.3" height="0.5" width="2.5"
+             color="#880044"
+             class="clickable">
+      </a-box>
+      <a-entity position="3 0.8 -2.99"
+                text="value: Afficher / cacher les notes;
+                      align: center;
+                      width: 4;
+                      color: #FFFFFF;">
+      </a-entity>
+
+      <!-- Lumières -->
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-entity light="type: point; intensity: 1" position="0 4 0"></a-entity>
+
+      <!-- Curseur (regard) pour cliquer en VR -->
+      <a-entity camera look-controls wasd-controls-enabled="false">
+        <a-cursor
+          fuse="true"
+          fuse-timeout="500"
+          raycaster="objects: .clickable">
+        </a-cursor>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      // LISTE DES QUESTIONS
+      const questions = [
+        "Pouvoir d'achat : que dites-vous à une mère célibataire qui n'arrive plus à boucler ses fins de mois ?",
+        "Sécurité : certains vous accusent d'exagérer la situation dans le Gers. Que répondez-vous ?",
+        "Santé / déserts médicaux : concrètement, que faites-vous pour qu'un Gersois trouve un médecin à moins de 20 minutes ?",
+        "Immigration : vos propositions sont jugées trop dures par vos adversaires. Comment justifiez-vous votre ligne ?",
+        "Agriculture : un éleveur vous dit qu'il va arrêter l'année prochaine. Que pouvez-vous lui promettre réellement ?"
+      ];
+
+      // LISTE DES NOTES / STORYBOARD ASSOCIÉS
+      // (1 bloc de notes par question, dans le même ordre)
+      const notes = [
+        "- Rappeler mon parcours de terrain, je connais les fins de mois difficiles.\n- Parler concret : carburant, alimentation, factures.\n- Proposer : baisse de TVA sur l'énergie, soutien aux familles monoparentales.\n- Message clé : \"Je ne promets pas la lune, je parle de ce qui se voit sur le ticket de caisse.\"",
+        "- Ne pas nier les chiffres : rappeler les faits dans le Gers.\n- Expliquer que la sécurité, c'est aussi le ressenti des habitants.\n- Mettre en avant mon expérience de policière.\n- Message clé : \"Je préfère prévenir que minimiser.\"",
+        "- Expliquer le scandale des déserts médicaux dans le Gers.\n- Proposer : incitations fortes à l'installation, maisons de santé, réouverture de services.\n- Parler de l'égalité d'accès aux soins.\n- Message clé : \"Un Gersois ne vaut pas moins qu'un Parisien.\"",
+        "- Distinguer immigration légale / illégale.\n- Parler de maîtrise, de fermeté, mais sans agressivité.\n- Lier immigration, insécurité, pression sur les services publics.\n- Message clé : \"On ne peut pas accueillir dignement si on n'a déjà pas les moyens pour nos propres concitoyens.\"",
+        "- Parler de la détresse des agriculteurs du Gers.\n- Mettre en cause les normes absurdes et les accords de libre-échange.\n- Proposer : prix rémunérateurs, préférence locale, simplification.\n- Message clé : \"Sans nos agriculteurs, il n'y a plus de Gers.\""
+      ];
+
+      let currentIndex = 0;
+      let notesVisible = true;
+
+      const questionEl = document.querySelector('#questionText');
+      const notesTextEl = document.querySelector('#notesText');
+      const notesPanelEl = document.querySelector('#notesPanel');
+      const notesTitleEl = document.querySelector('#notesTitle');
+      const nextButton = document.querySelector('#nextButton');
+      const toggleNotesButton = document.querySelector('#toggleNotesButton');
+
+      function showQuestion(index) {
+        const q = questions[index];
+        questionEl.setAttribute('text', 'value', q);
+
+        const n = notes[index] || "";
+        notesTextEl.setAttribute('text', 'value', n);
+      }
+
+      function nextQuestion() {
+        currentIndex = (currentIndex + 1) % questions.length;
+        showQuestion(currentIndex);
+      }
+
+      function toggleNotes() {
+        notesVisible = !notesVisible;
+
+        const visibility = notesVisible ? true : false;
+
+        notesPanelEl.setAttribute('visible', visibility);
+        notesTitleEl.setAttribute('visible', visibility);
+        notesTextEl.setAttribute('visible', visibility);
+      }
+
+      // Première question + notes
+      showQuestion(currentIndex);
+
+      // Écouteurs de clic
+      nextButton.addEventListener('click', nextQuestion);
+      toggleNotesButton.addEventListener('click', toggleNotes);
+    </script>
+  </body>
+</html>
