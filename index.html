@@ -1,35 +1,69 @@
-<!DOCTYPE html>    
+<!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>VR Media Training - Michèle</title>
-    <!-- Bibliothèque A-Frame -->
+    <title>VR Media Training - Salle avec public</title>
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   </head>
   <body>
     <!--
-      Mode d'emploi rapide :
-      1. Uploadez ce fichier sur Netlify (voir README).
-      2. Ouvrez l'URL depuis le navigateur de votre casque VR.
-      3. Cliquez sur "Enter VR" pour entrer dans la salle.
-      4. Bouton bleu : question suivante.
-      5. Bouton violet : afficher / cacher les notes / storyboard.
+      Mode d'emploi :
+      - Tu es placée derrière le pupitre, face au journaliste et au petit public.
+      - La question apparaît au-dessus de la tête du journaliste.
+      - Bouton sur le pupitre : "Question suivante".
+      - Panneau à droite : NOTES / STORYBOARD (que tu peux masquer / afficher).
     -->
+
     <a-scene>
-      <!-- Caméra principale -->
-      <a-entity id="rig" position="0 1.6 0">
-        <a-camera wasd-controls-enabled="false"></a-camera>
+      <!-- Caméra : toi, derrière le pupitre -->
+      <a-entity id="player" position="0 1.6 3">
+        <a-camera wasd-controls-enabled="false">
+          <a-cursor
+            fuse="true"
+            fuse-timeout="500"
+            raycaster="objects: .clickable">
+          </a-cursor>
+        </a-camera>
       </a-entity>
 
-      <!-- Sol -->
-      <a-plane rotation="-90 0 0" width="10" height="10" position="0 0 0" color="#808080"></a-plane>
+      <!-- Sol et plafond -->
+      <a-plane rotation="-90 0 0" width="12" height="12" position="0 0 0" color="#777777"></a-plane>
+      <a-plane rotation="90 0 0" width="12" height="12" position="0 4 0" color="#999999"></a-plane>
 
-      <!-- Mur avec la question -->
-      <a-box position="0 2 -5" depth="0.1" height="3" width="6" color="#222"></a-box>
+      <!-- Murs -->
+      <a-box position="0 2 -6" depth="0.2" height="4" width="12" color="#222222"></a-box> <!-- mur du fond -->
+      <a-box position="-6 2 0" depth="12" height="4" width="0.2" color="#333333"></a-box> <!-- mur gauche -->
+      <a-box position="6 2 0" depth="12" height="4" width="0.2" color="#333333"></a-box> <!-- mur droit -->
+      <a-box position="0 2 6" depth="0.2" height="4" width="12" color="#222222"></a-box> <!-- mur derrière toi -->
 
-      <!-- Panneau question (texte) -->
+      <!-- Pupitre (devant toi) -->
+      <a-box position="0 1 2" depth="0.5" height="1" width="1.2" color="#444444"></a-box>
+
+      <!-- Journaliste en face (avatar simple) -->
+      <!-- Corps -->
+      <a-cylinder position="0 1 -1" radius="0.3" height="1.2" color="#5555AA"></a-cylinder>
+      <!-- Tête -->
+      <a-sphere position="0 1.9 -1" radius="0.3" color="#FFCCAA"></a-sphere>
+
+      <!-- Public : deux personnes assises à gauche et à droite -->
+      <!-- Personne 1 -->
+      <a-cylinder position="-2 0.9 -2" radius="0.25" height="0.9" color="#AA5555"></a-cylinder>
+      <a-sphere position="-2 1.5 -2" radius="0.25" color="#FFDDCC"></a-sphere>
+      <!-- Personne 2 -->
+      <a-cylinder position="2 0.9 -2" radius="0.25" height="0.9" color="#55AA55"></a-cylinder>
+      <a-sphere position="2 1.5 -2" radius="0.25" color="#FFDDCC"></a-sphere>
+
+      <!-- Rangée de chaises (simplement des boxes) -->
+      <a-box position="-2 0.45 -2.4" depth="0.8" height="0.1" width="0.6" color="#555555"></a-box>
+      <a-box position="2 0.45 -2.4" depth="0.8" height="0.1" width="0.6" color="#555555"></a-box>
+
+      <!-- "Écran" ou panneau derrière le journaliste -->
+      <a-box position="0 2 -5.8" depth="0.1" height="3" width="6" color="#111111"></a-box>
+
+      <!-- Question au-dessus de la tête du journaliste -->
       <a-entity id="questionText"
-                position="0 2 -4.9"
+                position="0 2.6 -1"
                 text="value: Bienvenue dans la salle d'entraînement média.;
                       align: center;
                       wrapCount: 40;
@@ -37,28 +71,28 @@
                       color: #FFFFFF;">
       </a-entity>
 
-      <!-- Bouton "Question suivante" -->
+      <!-- Bouton "Question suivante" sur le pupitre -->
       <a-box id="nextButton"
-             position="0 0.8 -3"
-             depth="0.3" height="0.5" width="2"
-             color="#0044AA"
+             position="0 1.2 1.7"
+             depth="0.2" height="0.3" width="1"
+             color="#0066CC"
              class="clickable">
       </a-box>
-      <a-entity position="0 0.8 -2.99"
+      <a-entity position="0 1.2 1.71"
                 text="value: Question suivante;
                       align: center;
-                      width: 4;
+                      width: 3;
                       color: #FFFFFF;">
       </a-entity>
 
-      <!-- Panneau storyboard / notes à droite -->
+      <!-- Panneau storyboard / notes à droite de la salle -->
       <a-box id="notesPanel"
-             position="3 2 -4"
+             position="4.5 2 -2"
              depth="0.1" height="3" width="3.5"
-             color="#333"></a-box>
+             color="#333333"></a-box>
 
       <a-entity id="notesTitle"
-                position="3 3.3 -3.95"
+                position="4.5 3.3 -1.95"
                 text="value: NOTES / STORYBOARD;
                       align: center;
                       width: 4;
@@ -66,7 +100,7 @@
       </a-entity>
 
       <a-entity id="notesText"
-                position="3 1.9 -3.95"
+                position="4.5 1.9 -1.95"
                 text="value: ;
                       align: left;
                       wrapCount: 26;
@@ -74,14 +108,14 @@
                       color: #FFFFFF;">
       </a-entity>
 
-      <!-- Bouton pour afficher / cacher les notes -->
+      <!-- Bouton pour afficher / cacher les notes (en bas du panneau) -->
       <a-box id="toggleNotesButton"
-             position="3 0.8 -3"
-             depth="0.3" height="0.5" width="2.5"
+             position="4.5 0.9 -1.7"
+             depth="0.2" height="0.3" width="2.5"
              color="#880044"
              class="clickable">
       </a-box>
-      <a-entity position="3 0.8 -2.99"
+      <a-entity position="4.5 0.9 -1.69"
                 text="value: Afficher / cacher les notes;
                       align: center;
                       width: 4;
@@ -89,17 +123,8 @@
       </a-entity>
 
       <!-- Lumières -->
-      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
-      <a-entity light="type: point; intensity: 1" position="0 4 0"></a-entity>
-
-      <!-- Curseur (regard) pour cliquer en VR -->
-      <a-entity camera look-controls wasd-controls-enabled="false">
-        <a-cursor
-          fuse="true"
-          fuse-timeout="500"
-          raycaster="objects: .clickable">
-        </a-cursor>
-      </a-entity>
+      <a-entity light="type: ambient; intensity: 0.7"></a-entity>
+      <a-entity light="type: point; intensity: 1" position="0 3 1"></a-entity>
     </a-scene>
 
     <script>
@@ -112,14 +137,13 @@
         "Agriculture : un éleveur vous dit qu'il va arrêter l'année prochaine. Que pouvez-vous lui promettre réellement ?"
       ];
 
-      // LISTE DES NOTES / STORYBOARD ASSOCIÉS
-      // (1 bloc de notes par question, dans le même ordre)
+      // NOTES / STORYBOARD associées
       const notes = [
-        "- Rappeler mon parcours de terrain, je connais les fins de mois difficiles.\n- Parler concret : carburant, alimentation, factures.\n- Proposer : baisse de TVA sur l'énergie, soutien aux familles monoparentales.\n- Message clé : \"Je ne promets pas la lune, je parle de ce qui se voit sur le ticket de caisse.\"",
-        "- Ne pas nier les chiffres : rappeler les faits dans le Gers.\n- Expliquer que la sécurité, c'est aussi le ressenti des habitants.\n- Mettre en avant mon expérience de policière.\n- Message clé : \"Je préfère prévenir que minimiser.\"",
-        "- Expliquer le scandale des déserts médicaux dans le Gers.\n- Proposer : incitations fortes à l'installation, maisons de santé, réouverture de services.\n- Parler de l'égalité d'accès aux soins.\n- Message clé : \"Un Gersois ne vaut pas moins qu'un Parisien.\"",
-        "- Distinguer immigration légale / illégale.\n- Parler de maîtrise, de fermeté, mais sans agressivité.\n- Lier immigration, insécurité, pression sur les services publics.\n- Message clé : \"On ne peut pas accueillir dignement si on n'a déjà pas les moyens pour nos propres concitoyens.\"",
-        "- Parler de la détresse des agriculteurs du Gers.\n- Mettre en cause les normes absurdes et les accords de libre-échange.\n- Proposer : prix rémunérateurs, préférence locale, simplification.\n- Message clé : \"Sans nos agriculteurs, il n'y a plus de Gers.\""
+        "- Rappeler mon parcours de terrain, je connais les fins de mois difficiles.\\n- Parler concret : carburant, alimentation, factures.\\n- Proposer : baisse de TVA sur l'énergie, soutien aux familles monoparentales.\\n- Message clé : \\\"Je ne promets pas la lune, je parle de ce qui se voit sur le ticket de caisse.\\\"",
+        "- Ne pas nier les chiffres : rappeler les faits dans le Gers.\\n- Expliquer que la sécurité, c'est aussi le ressenti des habitants.\\n- Mettre en avant mon expérience de policière.\\n- Message clé : \\\"Je préfère prévenir que minimiser.\\\"",
+        "- Expliquer le scandale des déserts médicaux dans le Gers.\\n- Proposer : incitations fortes à l'installation, maisons de santé, réouverture de services.\\n- Parler de l'égalité d'accès aux soins.\\n- Message clé : \\\"Un Gersois ne vaut pas moins qu'un Parisien.\\\"",
+        "- Distinguer immigration légale / illégale.\\n- Parler de maîtrise, de fermeté, mais sans agressivité.\\n- Lier immigration, insécurité, pression sur les services publics.\\n- Message clé : \\\"On ne peut pas accueillir dignement si on n'a déjà pas les moyens pour nos propres concitoyens.\\\"",
+        "- Parler de la détresse des agriculteurs du Gers.\\n- Mettre en cause les normes absurdes et les accords de libre-échange.\\n- Proposer : prix rémunérateurs, préférence locale, simplification.\\n- Message clé : \\\"Sans nos agriculteurs, il n'y a plus de Gers.\\\""
       ];
 
       let currentIndex = 0;
@@ -147,18 +171,16 @@
 
       function toggleNotes() {
         notesVisible = !notesVisible;
-
-        const visibility = notesVisible ? true : false;
-
-        notesPanelEl.setAttribute('visible', visibility);
-        notesTitleEl.setAttribute('visible', visibility);
-        notesTextEl.setAttribute('visible', visibility);
+        const visible = notesVisible;
+        notesPanelEl.setAttribute('visible', visible);
+        notesTitleEl.setAttribute('visible', visible);
+        notesTextEl.setAttribute('visible', visible);
       }
 
-      // Première question + notes
+      // Affiche la première question au chargement
       showQuestion(currentIndex);
 
-      // Écouteurs de clic
+      // Clics sur les boutons
       nextButton.addEventListener('click', nextQuestion);
       toggleNotesButton.addEventListener('click', toggleNotes);
     </script>
